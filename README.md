@@ -1,59 +1,79 @@
-# Skillmate
+# SkillMate
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.8.
+SkillMate - школьный семестровый проект на Angular 21: платформа для поиска партнёров по обмену навыками, планирования учебных сессий, отзывов, групп и материалов.
 
-## Development server
+## Демо-доступ
 
-To start a local development server, run:
+- Email: `anya@student.test`
+- Пароль: `skillmate`
 
-```bash
-ng serve
-```
+## Стек
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Angular 21, TypeScript, standalone components, lazy routes
+- Taiga UI 4: `TuiRoot`, `TuiButton`, `TuiLoader`, `TuiNotification`, `TuiBadge`, `TuiProgress`, `TuiCard`
+- Signal Store: `@ngrx/signals`
+- Mock API: `json-server`
+- Unit-тесты: Jest
+- Component/e2e-сценарии: Playwright
+- Качество кода: ESLint, Prettier, Stylelint
+- CI/CD: GitLab CI pipeline и GitHub Actions
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Запуск
 
 ```bash
-ng generate --help
+npm install
+npm run dev
 ```
 
-## Building
+`npm run dev` поднимает Angular на `http://localhost:4200` и mock API на `http://127.0.0.1:3001`.
 
-To build the project run:
+Отдельные команды:
 
 ```bash
-ng build
+npm run mock:api
+npm run start
+npm run build
+npm run test
+npm run e2e
+npm run lint
+npm run stylelint
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Структура
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
+```text
+src/app/core      auth, guards, interceptors, API services, Signal Store, models
+src/app/features  lazy-loaded pages: login, dashboard, profile, groups
+src/app/shared    reusable component, pipe, pure utils
+mock/db.json      mock data for json-server
+docs/             plan, UX concept, local prototype
+tests/e2e         Playwright scenarios
 ```
 
-## Running end-to-end tests
+## Реализованные сценарии
 
-For end-to-end (e2e) testing, run:
+- Login/logout с хранением mock JWT в `localStorage`
+- Protected routes через `authGuard`
+- Token и error interceptors для HTTP
+- Профиль с навыками, интересами и прогрессом
+- Поиск, фильтрация и сортировка партнёров
+- Расчёт совместимости и среднего прогресса
+- Предложение обмена навыками
+- Планирование и удаление учебных сессий
+- Создание групп и добавление материалов
+- Создание отзывов о партнёрах
 
-```bash
-ng e2e
-```
+## Деплой
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Подготовлены два варианта:
 
-## Additional Resources
+- GitLab Pages: `.gitlab-ci.yml` публикует `dist/skillmate/browser` из ветки `main`
+- Vercel: `vercel.json` использует `npm run build` и SPA rewrite
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Публичный URL нужно добавить после привязки репозитория к GitLab Pages или Vercel.
+
+## Документация
+
+- [План разработки](docs/plan.md)
+- [UX-концепция](docs/ux.md)
+- [Локальный прототип](docs/prototype.md)

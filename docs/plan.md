@@ -15,12 +15,12 @@ SkillMate - Angular-приложение для поиска партнёров 
 
 ## Этапы разработки
 
-| Срок | Задача |
-| --- | --- |
+| Срок            | Задача                                                                                                                            |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | До конца апреля | Angular 21 workspace, routing, core/shared/features структура, auth flow, базовые компоненты, формы профиля и расписания, mock db |
-| 1-2 неделя мая | Signal Store, интеграция с json-server, guards, interceptors, loading/error состояния, поиск, фильтрация, сортировка |
-| 3 неделя мая | Unit-тесты на Jest, Playwright-сценарии, линтеры, README, CI pipeline |
-| До конца мая | Production build, деплой, Lighthouse, подготовка 5-7 минутной демонстрации |
+| 1-2 неделя мая  | Signal Store, интеграция с json-server, guards, interceptors, loading/error состояния, поиск, фильтрация, сортировка              |
+| 3 неделя мая    | Unit-тесты на Jest, Playwright-сценарии, линтеры, README, CI pipeline                                                             |
+| До конца мая    | Production build, деплой, Lighthouse, подготовка 5-7 минутной демонстрации                                                        |
 
 ## Риски
 

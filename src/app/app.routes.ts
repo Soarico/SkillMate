@@ -6,7 +6,8 @@ export const routes: Routes = [
   {
     path: 'login',
     canActivate: [guestGuard],
-    loadComponent: () => import('./features/auth/login.component').then((module) => module.LoginComponent),
+    loadComponent: () =>
+      import('./features/auth/login.component').then((module) => module.LoginComponent),
   },
   {
     path: '',
@@ -20,7 +21,9 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((module) => module.DashboardComponent),
+          import('./features/dashboard/dashboard.component').then(
+            (module) => module.DashboardComponent,
+          ),
       },
       {
         path: 'profile',

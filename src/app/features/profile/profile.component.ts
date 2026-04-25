@@ -63,8 +63,12 @@ export class ProfileComponent implements OnInit {
       name: value.name,
       city: value.city,
       about: value.about,
-      teachSkills: splitList(value.teachSkills).map((skill, index) => toSkill(skill, index, 'Teaching')),
-      learnSkills: splitList(value.learnSkills).map((skill, index) => toSkill(skill, index, 'Learning')),
+      teachSkills: splitList(value.teachSkills).map((skill, index) =>
+        toSkill(skill, index, 'Teaching'),
+      ),
+      learnSkills: splitList(value.learnSkills).map((skill, index) =>
+        toSkill(skill, index, 'Learning'),
+      ),
       interests: splitList(value.interests),
     };
 

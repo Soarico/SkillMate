@@ -42,7 +42,9 @@ export class DashboardComponent implements OnInit {
   }
 
   protected setSort(value: string): void {
-    const sort = ['compatibility', 'rating', 'name'].includes(value) ? (value as PartnerSort) : 'compatibility';
+    const sort = ['compatibility', 'rating', 'name'].includes(value)
+      ? (value as PartnerSort)
+      : 'compatibility';
     this.store.updateSort(sort);
   }
 

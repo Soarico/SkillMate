@@ -11,7 +11,10 @@ import {
   UserProfile,
 } from '../models/skillmate.models';
 import { SkillmateApiService } from '../services/skillmate-api.service';
-import { calculateCompatibility, calculateProgressPercent } from '../../shared/utils/compatibility.util';
+import {
+  calculateCompatibility,
+  calculateProgressPercent,
+} from '../../shared/utils/compatibility.util';
 
 export type PartnerSort = 'compatibility' | 'rating' | 'name';
 
@@ -46,9 +49,9 @@ export const SkillmateStore = signalStore(
   withState(initialState),
   withComputed((store) => ({
     categories: computed(() => {
-      const categories = store.partners().flatMap((partner) =>
-        partner.teachSkills.map((skill) => skill.category),
-      );
+      const categories = store
+        .partners()
+        .flatMap((partner) => partner.teachSkills.map((skill) => skill.category));
 
       return Array.from(new Set(categories)).sort();
     }),
@@ -56,7 +59,9 @@ export const SkillmateStore = signalStore(
       const query = store.query().trim().toLowerCase();
       const category = store.category();
       const currentProfile = store.currentProfile();
-      const matches = store.partners().map((partner) => calculateCompatibility(currentProfile, partner));
+      const matches = store
+        .partners()
+        .map((partner) => calculateCompatibility(currentProfile, partner));
 
       return matches
         .filter((partner) => partner.id !== currentProfile?.id)
@@ -216,7 +221,11 @@ export const SkillmateStore = signalStore(
         }),
       );
     },
-    addMaterial(group: SkillGroup, materialTitle: string, materialUrl: string): Observable<SkillGroup> {
+    addMaterial(
+      group: SkillGroup,
+      materialTitle: string,
+      materialUrl: string,
+    ): Observable<SkillGroup> {
       const currentProfile = store.currentProfile();
 
       if (!currentProfile) {
@@ -234,7 +243,9 @@ export const SkillmateStore = signalStore(
         .pipe(
           tap((updatedGroup) =>
             patchState(store, {
-              groups: store.groups().map((item) => (item.id === updatedGroup.id ? updatedGroup : item)),
+              groups: store
+                .groups()
+                .map((item) => (item.id === updatedGroup.id ? updatedGroup : item)),
             }),
           ),
         );

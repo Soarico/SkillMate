@@ -55,7 +55,11 @@
 
       <label>
         <span>Категория</span>
-        <select #category [value]="store.category()" (change)="store.updateCategory(category.value)">
+        <select
+          #category
+          [value]="store.category()"
+          (change)="store.updateCategory(category.value)"
+        >
           <option value="all">Все категории</option>
           @for (item of store.categories(); track item) {
             <option [value]="item">{{ item }}</option>
@@ -76,7 +80,11 @@
     <section class="content-grid">
       <div class="partners" aria-label="Список партнёров">
         @for (partner of store.filteredPartners(); track partner.id) {
-          <app-partner-card [partner]="partner" (propose)="propose($event)" (review)="addReview($event)" />
+          <app-partner-card
+            [partner]="partner"
+            (propose)="propose($event)"
+            (review)="addReview($event)"
+          />
         } @empty {
           <div class="empty">Партнёры не найдены. Попробуй другой навык или категорию.</div>
         }

@@ -3,8 +3,8 @@
     <p class="eyebrow">Skill exchange platform</p>
     <h1>Найди партнёра, который учит тому, что нужно тебе</h1>
     <p>
-      SkillMate помогает собрать профиль навыков, подобрать совместимых людей, договориться об обмене
-      и отслеживать прогресс обучения.
+      SkillMate помогает собрать профиль навыков, подобрать совместимых людей, договориться об
+      обмене и отслеживать прогресс обучения.
     </p>
   </div>
 
@@ -17,7 +17,12 @@
 
     <label>
       <span>Email</span>
-      <input formControlName="email" type="email" autocomplete="email" aria-describedby="email-error" />
+      <input
+        formControlName="email"
+        type="email"
+        autocomplete="email"
+        aria-describedby="email-error"
+      />
       @if (form.controls.email.touched && form.controls.email.invalid) {
         <small id="email-error">Введите корректный email.</small>
       }

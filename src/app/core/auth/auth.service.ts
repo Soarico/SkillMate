@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { map, Observable, tap, throwError } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 
 import { AuthSession, LoginCredentials, UserProfile } from '../models/skillmate.models';
 import { SkillmateApiService } from '../services/skillmate-api.service';
@@ -27,7 +27,20 @@ export class AuthService {
           throw new Error('Неверный email или пароль');
         }
 
-        const { password: _password, ...profile } = user;
+        const profile: UserProfile = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          city: user.city,
+          avatarUrl: user.avatarUrl,
+          about: user.about,
+          teachSkills: user.teachSkills,
+          learnSkills: user.learnSkills,
+          interests: user.interests,
+          progress: user.progress,
+          rating: user.rating,
+          reviewCount: user.reviewCount,
+        };
 
         return {
           token: `mock-jwt-${profile.id}-${Date.now()}`,

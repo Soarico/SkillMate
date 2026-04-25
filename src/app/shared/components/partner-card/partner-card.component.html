@@ -33,7 +33,9 @@
   <progress tuiProgressBar size="s" max="100" [value]="partner.compatibility"></progress>
 
   <footer class="partner-card__actions">
-    <button tuiButton size="s" type="button" (click)="propose.emit(partner)">Предложить обмен</button>
+    <button tuiButton size="s" type="button" (click)="propose.emit(partner)">
+      Предложить обмен
+    </button>
     <button tuiButton size="s" appearance="secondary" type="button" (click)="review.emit(partner)">
       Оставить отзыв
     </button>

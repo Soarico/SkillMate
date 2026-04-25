@@ -8,14 +8,22 @@
 
       @if (auth.isAuthenticated()) {
         <nav class="topbar__nav" aria-label="Разделы приложения">
-          <a routerLink="/dashboard" routerLinkActive="topbar__link--active" class="topbar__link">Партнёры</a>
-          <a routerLink="/profile" routerLinkActive="topbar__link--active" class="topbar__link">Профиль</a>
-          <a routerLink="/groups" routerLinkActive="topbar__link--active" class="topbar__link">Группы</a>
+          <a routerLink="/dashboard" routerLinkActive="topbar__link--active" class="topbar__link"
+            >Партнёры</a
+          >
+          <a routerLink="/profile" routerLinkActive="topbar__link--active" class="topbar__link"
+            >Профиль</a
+          >
+          <a routerLink="/groups" routerLinkActive="topbar__link--active" class="topbar__link"
+            >Группы</a
+          >
         </nav>
 
         <div class="topbar__user">
           <span>{{ auth.session()?.user?.name }}</span>
-          <button tuiButton size="s" appearance="secondary" type="button" (click)="logout()">Выйти</button>
+          <button tuiButton size="s" appearance="secondary" type="button" (click)="logout()">
+            Выйти
+          </button>
         </div>
       }
     </header>

@@ -18,7 +18,10 @@ export const toSkill = (name: string, index: number, category = 'General'): Skil
   description: `Хочу развивать навык: ${name}`,
 });
 
-export const calculateProgressPercent = (completedLessons: number, totalLessons: number): number => {
+export const calculateProgressPercent = (
+  completedLessons: number,
+  totalLessons: number,
+): number => {
   if (totalLessons <= 0) {
     return 0;
   }
@@ -53,7 +56,10 @@ export const calculateCompatibility = (
   const ratingBonus = Math.round(candidate.rating * 2);
   const compatibility = Math.min(
     100,
-    candidateTeaches.length * 35 + candidateWants.length * 30 + sharedInterests.length * 8 + ratingBonus,
+    candidateTeaches.length * 35 +
+      candidateWants.length * 30 +
+      sharedInterests.length * 8 +
+      ratingBonus,
   );
 
   return {

@@ -1,0 +1,82 @@
+.partner-card {
+  display: grid;
+  gap: 1rem;
+  min-height: 100%;
+  border: 1px solid rgba(20, 33, 61, 0.08);
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 14px 40px rgba(20, 33, 61, 0.07);
+}
+
+.partner-card__header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  p {
+    margin: 0.15rem 0 0;
+    color: #667085;
+    font-size: 0.9rem;
+  }
+}
+
+.partner-card__avatar {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border-radius: 0.5rem;
+  background: #c8e7dc;
+  color: #0f5132;
+  font-weight: 800;
+}
+
+.partner-card__about {
+  margin: 0;
+  color: #344054;
+  line-height: 1.55;
+}
+
+.partner-card__section {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.partner-card__label {
+  color: #667085;
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.partner-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+
+  span {
+    padding: 0.35rem 0.55rem;
+    border-radius: 0.5rem;
+    background: #e6f4ef;
+    color: #0f5132;
+    font-size: 0.82rem;
+    font-weight: 650;
+  }
+}
+
+.partner-card__chips--muted span {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.partner-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

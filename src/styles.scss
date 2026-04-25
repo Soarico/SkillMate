@@ -1,1 +1,34 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@taiga-ui/core/styles/taiga-ui-local';
+
+:root {
+  --tui-font-text: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --tui-font-heading: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --tui-primary: #15616d;
+  --tui-primary-hover: #104f59;
+  --tui-positive: #0f8b5f;
+  --tui-negative: #b42318;
+  --tui-radius-m: 0.5rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  color-scheme: light;
+  font-family: var(--tui-font-text);
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+input,
+select,
+textarea {
+  letter-spacing: 0;
+}

@@ -1,0 +1,82 @@
+<section class="groups-page">
+  <header class="page-heading">
+    <p class="eyebrow">Сообщества</p>
+    <h1>Группы по интересам и материалы</h1>
+  </header>
+
+  @if (message()) {
+    <tui-notification appearance="positive">{{ message() }}</tui-notification>
+  }
+
+  @if (error()) {
+    <tui-notification appearance="negative">{{ error() }}</tui-notification>
+  }
+
+  <section class="forms-row" aria-label="Создание группы и материала">
+    <form class="panel" [formGroup]="groupForm" (ngSubmit)="createGroup()">
+      <h2>Новая группа</h2>
+      <label>
+        <span>Название</span>
+        <input formControlName="title" placeholder="Frontend club" />
+      </label>
+      <label>
+        <span>Описание</span>
+        <textarea formControlName="description" rows="3"></textarea>
+      </label>
+      <label>
+        <span>Интерес</span>
+        <input formControlName="interest" placeholder="frontend" />
+      </label>
+      <button tuiButton type="submit">Создать</button>
+    </form>
+
+    <form class="panel" [formGroup]="materialForm" (ngSubmit)="addMaterial()">
+      <h2>Материал в группу</h2>
+      <label>
+        <span>Группа</span>
+        <select formControlName="groupId">
+          <option [ngValue]="0">Выбрать группу</option>
+          @for (group of store.groups(); track group.id) {
+            <option [ngValue]="group.id">{{ group.title }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Название</span>
+        <input formControlName="title" placeholder="Чек-лист перед созвоном" />
+      </label>
+      <label>
+        <span>Ссылка</span>
+        <input formControlName="url" placeholder="https://..." />
+      </label>
+      <button tuiButton type="submit">Добавить материал</button>
+    </form>
+  </section>
+
+  <section class="groups-grid" aria-label="Список групп">
+    @for (group of store.groups(); track group.id) {
+      <article class="group-card">
+        <header>
+          <div>
+            <h2>{{ group.title }}</h2>
+            <p>{{ group.description }}</p>
+          </div>
+          <tui-badge appearance="accent" size="m">{{ group.interest }}</tui-badge>
+        </header>
+
+        <div class="group-card__meta">
+          <span>{{ group.memberIds.length }} участников</span>
+          <span>{{ group.materials.length }} материалов</span>
+        </div>
+
+        <div class="materials">
+          @for (material of group.materials; track material.title) {
+            <a [href]="material.url" target="_blank" rel="noreferrer">{{ material.title }}</a>
+          } @empty {
+            <span>Материалов пока нет.</span>
+          }
+        </div>
+      </article>
+    }
+  </section>
+</section>

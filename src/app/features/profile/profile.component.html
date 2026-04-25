@@ -1,0 +1,72 @@
+<section class="profile-page">
+  <header class="page-heading">
+    <p class="eyebrow">Профиль</p>
+    <h1>Навыки, цели и прогресс</h1>
+  </header>
+
+  @if (saved()) {
+    <tui-notification appearance="positive">Профиль обновлён</tui-notification>
+  }
+
+  @if (error()) {
+    <tui-notification appearance="negative">{{ error() }}</tui-notification>
+  }
+
+  <div class="profile-layout">
+    <form class="profile-form" [formGroup]="form" (ngSubmit)="save()">
+      <label>
+        <span>Имя</span>
+        <input formControlName="name" />
+      </label>
+
+      <label>
+        <span>Город</span>
+        <input formControlName="city" />
+      </label>
+
+      <label class="profile-form__wide">
+        <span>О себе</span>
+        <textarea formControlName="about" rows="5"></textarea>
+        @if (form.controls.about.touched && form.controls.about.invalid) {
+          <small>Опиши себя подробнее: минимум 20 символов.</small>
+        }
+      </label>
+
+      <label class="profile-form__wide">
+        <span>Навыки, которым могу научить</span>
+        <input formControlName="teachSkills" placeholder="TypeScript, презентации, английский" />
+      </label>
+
+      <label class="profile-form__wide">
+        <span>Навыки, которые хочу получить</span>
+        <input formControlName="learnSkills" placeholder="Figma, публичные выступления" />
+      </label>
+
+      <label class="profile-form__wide">
+        <span>Интересы</span>
+        <input formControlName="interests" placeholder="frontend, design, languages" />
+      </label>
+
+      <button tuiButton type="submit">Сохранить профиль</button>
+    </form>
+
+    <aside class="progress-panel" aria-label="Прогресс обучения">
+      <h2>Текущий прогресс</h2>
+      @for (item of store.currentProfile()?.progress ?? []; track item.skill) {
+        <article class="progress-item">
+          <div>
+            <strong>{{ item.skill }}</strong>
+            <span>{{ item.completedLessons }} из {{ item.totalLessons }} уроков</span>
+          </div>
+          <progress
+            tuiProgressBar
+            size="s"
+            max="100"
+            [value]="(item.completedLessons / item.totalLessons) * 100"
+          ></progress>
+          <small>{{ item.nextMilestone }}</small>
+        </article>
+      }
+    </aside>
+  </div>
+</section>

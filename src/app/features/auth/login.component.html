@@ -1,0 +1,45 @@
+<section class="login">
+  <div class="login__intro">
+    <p class="eyebrow">Skill exchange platform</p>
+    <h1>Найди партнёра, который учит тому, что нужно тебе</h1>
+    <p>
+      SkillMate помогает собрать профиль навыков, подобрать совместимых людей, договориться об обмене
+      и отслеживать прогресс обучения.
+    </p>
+  </div>
+
+  <form class="login__form" [formGroup]="form" (ngSubmit)="submit()" aria-label="Форма входа">
+    <h2>Вход</h2>
+
+    @if (error()) {
+      <tui-notification appearance="negative" size="s">{{ error() }}</tui-notification>
+    }
+
+    <label>
+      <span>Email</span>
+      <input formControlName="email" type="email" autocomplete="email" aria-describedby="email-error" />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <small id="email-error">Введите корректный email.</small>
+      }
+    </label>
+
+    <label>
+      <span>Пароль</span>
+      <input
+        formControlName="password"
+        type="password"
+        autocomplete="current-password"
+        aria-describedby="password-error"
+      />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <small id="password-error">Минимум 6 символов.</small>
+      }
+    </label>
+
+    <button tuiButton type="submit" [disabled]="loading()">
+      {{ loading() ? 'Входим...' : 'Войти' }}
+    </button>
+
+    <p class="login__hint">Демо: anya&#64;student.test / skillmate</p>
+  </form>
+</section>

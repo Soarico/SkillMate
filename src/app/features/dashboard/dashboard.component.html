@@ -1,0 +1,142 @@
+<tui-loader [showLoader]="store.loading()" size="l">
+  <section class="dashboard" aria-label="Панель подбора партнёров">
+    <div class="dashboard__summary">
+      <div>
+        <p class="eyebrow">Рабочий прототип</p>
+        <h1>Подбор партнёров по обмену навыками</h1>
+      </div>
+      <div class="dashboard__score" aria-label="Средний прогресс обучения">
+        <strong>{{ store.averageProgress() }}%</strong>
+        <span>средний прогресс</span>
+      </div>
+    </div>
+
+    @if (store.error()) {
+      <tui-notification appearance="negative">{{ store.error() }}</tui-notification>
+    }
+
+    @if (actionMessage()) {
+      <tui-notification appearance="positive">{{ actionMessage() }}</tui-notification>
+    }
+
+    @if (actionError()) {
+      <tui-notification appearance="negative">{{ actionError() }}</tui-notification>
+    }
+
+    <section class="stats-grid" aria-label="Прогресс обучения">
+      @for (item of store.currentProfile()?.progress ?? []; track item.skill) {
+        <article class="stat">
+          <div class="stat__top">
+            <strong>{{ item.skill }}</strong>
+            <span>{{ item.completedLessons | progressPercent: item.totalLessons }}%</span>
+          </div>
+          <progress
+            tuiProgressBar
+            size="s"
+            max="100"
+            [value]="item.completedLessons | progressPercent: item.totalLessons"
+          ></progress>
+          <small>{{ item.nextMilestone }}</small>
+        </article>
+      }
+    </section>
+
+    <section class="toolbar" aria-label="Поиск и фильтрация партнёров">
+      <label>
+        <span>Поиск</span>
+        <input
+          #search
+          type="search"
+          [value]="store.query()"
+          (input)="store.updateSearch(search.value)"
+          placeholder="Навык, город, имя"
+        />
+      </label>
+
+      <label>
+        <span>Категория</span>
+        <select #category [value]="store.category()" (change)="store.updateCategory(category.value)">
+          <option value="all">Все категории</option>
+          @for (item of store.categories(); track item) {
+            <option [value]="item">{{ item }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        <span>Сортировка</span>
+        <select #sort [value]="store.sortBy()" (change)="setSort(sort.value)">
+          <option value="compatibility">Совместимость</option>
+          <option value="rating">Рейтинг</option>
+          <option value="name">Имя</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="content-grid">
+      <div class="partners" aria-label="Список партнёров">
+        @for (partner of store.filteredPartners(); track partner.id) {
+          <app-partner-card [partner]="partner" (propose)="propose($event)" (review)="addReview($event)" />
+        } @empty {
+          <div class="empty">Партнёры не найдены. Попробуй другой навык или категорию.</div>
+        }
+      </div>
+
+      <aside class="side-panel" aria-label="Планирование обучения">
+        <form class="session-form" [formGroup]="sessionForm" (ngSubmit)="scheduleSession()">
+          <h2>Запланировать сессию</h2>
+
+          <label>
+            <span>Партнёр</span>
+            <select formControlName="partnerId">
+              <option [ngValue]="0">Выбрать партнёра</option>
+              @for (partner of store.filteredPartners(); track partner.id) {
+                <option [ngValue]="partner.id">{{ partner.name }}</option>
+              }
+            </select>
+          </label>
+
+          <label>
+            <span>Тема</span>
+            <input formControlName="topic" placeholder="Например, основы Figma" />
+          </label>
+
+          <label>
+            <span>Дата и время</span>
+            <input formControlName="startsAt" type="datetime-local" />
+          </label>
+
+          <label>
+            <span>Длительность, минут</span>
+            <input formControlName="durationMinutes" type="number" min="30" step="15" />
+          </label>
+
+          <button tuiButton type="submit">Добавить</button>
+        </form>
+
+        <div class="sessions">
+          <h2>Ближайшие сессии</h2>
+          @for (session of store.upcomingSessions(); track session.id) {
+            <article class="session">
+              <div>
+                <strong>{{ session.topic }}</strong>
+                <span>{{ session.startsAt | date: 'dd.MM.yyyy HH:mm' }}</span>
+              </div>
+              <button
+                tuiButton
+                size="s"
+                appearance="secondary"
+                type="button"
+                (click)="removeSession(session.id)"
+              >
+                Удалить
+              </button>
+            </article>
+          } @empty {
+            <p class="empty empty--compact">Пока нет запланированных занятий.</p>
+          }
+        </div>
+      </aside>
+    </section>
+  </section>
+</tui-loader>

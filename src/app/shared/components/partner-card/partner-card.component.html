@@ -1,0 +1,41 @@
+<article tuiCardLarge class="partner-card">
+  <header class="partner-card__header">
+    <div class="partner-card__avatar" aria-hidden="true">
+      {{ partner.name.slice(0, 2).toUpperCase() }}
+    </div>
+    <div>
+      <h3>{{ partner.name }}</h3>
+      <p>{{ partner.city }} · рейтинг {{ partner.rating }} из 5</p>
+    </div>
+    <tui-badge appearance="positive" size="m">{{ partner.compatibility }}%</tui-badge>
+  </header>
+
+  <p class="partner-card__about">{{ partner.about }}</p>
+
+  <div class="partner-card__section">
+    <span class="partner-card__label">Учит</span>
+    <div class="partner-card__chips">
+      @for (skill of partner.teachSkills; track skill.id) {
+        <span>{{ skill.name }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="partner-card__section">
+    <span class="partner-card__label">Хочет изучить</span>
+    <div class="partner-card__chips partner-card__chips--muted">
+      @for (skill of partner.learnSkills; track skill.id) {
+        <span>{{ skill.name }}</span>
+      }
+    </div>
+  </div>
+
+  <progress tuiProgressBar size="s" max="100" [value]="partner.compatibility"></progress>
+
+  <footer class="partner-card__actions">
+    <button tuiButton size="s" type="button" (click)="propose.emit(partner)">Предложить обмен</button>
+    <button tuiButton size="s" appearance="secondary" type="button" (click)="review.emit(partner)">
+      Оставить отзыв
+    </button>
+  </footer>
+</article>

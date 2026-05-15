@@ -1,8 +1,14 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable, switchMap, tap } from 'rxjs';
 
-import { AuthSession, LoginCredentials, UserProfile } from '../models/skillmate.models';
+import {
+  AuthSession,
+  LoginCredentials,
+  RegisterCredentials,
+  UserProfile,
+  UserRecord,
+} from '../models/skillmate.models';
 import { SkillmateApiService } from '../services/skillmate-api.service';
 import { StorageService } from '../services/storage.service';
 
@@ -27,26 +33,39 @@ export class AuthService {
           throw new Error('Неверный email или пароль');
         }
 
-        const profile: UserProfile = {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          city: user.city,
-          avatarUrl: user.avatarUrl,
-          about: user.about,
-          teachSkills: user.teachSkills,
-          learnSkills: user.learnSkills,
-          interests: user.interests,
-          progress: user.progress,
-          rating: user.rating,
-          reviewCount: user.reviewCount,
-        };
+        const profile = this.toProfile(user);
 
-        return {
-          token: `mock-jwt-${profile.id}-${Date.now()}`,
-          user: profile,
-        };
+        return this.createSession(profile);
       }),
+      tap((session) => this.persistSession(session)),
+    );
+  }
+
+  register(credentials: RegisterCredentials): Observable<AuthSession> {
+    const email = credentials.email.trim().toLowerCase();
+
+    return this.api.findUserByEmail(email).pipe(
+      switchMap((users) => {
+        if (users.length) {
+          throw new Error('Пользователь с таким email уже зарегистрирован');
+        }
+
+        return this.api.createUser({
+          name: credentials.name.trim(),
+          email,
+          password: credentials.password,
+          city: credentials.city.trim(),
+          avatarUrl: '',
+          about: credentials.about.trim(),
+          teachSkills: [],
+          learnSkills: [],
+          interests: [],
+          progress: [],
+          rating: 5,
+          reviewCount: 0,
+        });
+      }),
+      map((user) => this.createSession(this.toProfile(user))),
       tap((session) => this.persistSession(session)),
     );
   }
@@ -74,6 +93,30 @@ export class AuthService {
   private persistSession(session: AuthSession): void {
     this.storage.setItem(SESSION_KEY, JSON.stringify(session));
     this.sessionState.set(session);
+  }
+
+  private createSession(profile: UserProfile): AuthSession {
+    return {
+      token: `mock-jwt-${profile.id}-${Date.now()}`,
+      user: profile,
+    };
+  }
+
+  private toProfile(user: UserRecord): UserProfile {
+    return {
+      id: Number(user.id),
+      name: user.name,
+      email: user.email,
+      city: user.city,
+      avatarUrl: user.avatarUrl,
+      about: user.about,
+      teachSkills: user.teachSkills,
+      learnSkills: user.learnSkills,
+      interests: user.interests,
+      progress: user.progress,
+      rating: user.rating,
+      reviewCount: user.reviewCount,
+    };
   }
 
   private restoreSession(): AuthSession | null {

@@ -94,11 +94,27 @@ const groups = [
     interest: 'frontend',
     ownerId: 1,
     memberIds: [1, 2],
-    materials: [],
+    materials: [
+      {
+        id: 1,
+        title: 'Angular routing checklist',
+        url: 'https://angular.dev/guide/routing',
+        type: 'article',
+        authorId: 1,
+        createdAt: '2026-04-21T12:00:00.000Z',
+      },
+    ],
   },
 ];
 
 async function mockApi(page: Page): Promise<void> {
+  const apiUsers = users.map((user) => ({ ...user }));
+  const apiGroups = groups.map((group) => ({
+    ...group,
+    memberIds: [...group.memberIds],
+    materials: group.materials.map((material) => ({ ...material })),
+  }));
+
   await page.route('**/api/**', async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -107,21 +123,39 @@ async function mockApi(page: Page): Promise<void> {
 
     if (path === '/users' && method === 'GET') {
       const email = url.searchParams.get('email');
-      const body = email ? users.filter((user) => user.email === email) : users;
+      const body = email ? apiUsers.filter((user) => user.email === email) : apiUsers;
 
       await route.fulfill({ json: body });
 
       return;
     }
 
-    if (path === '/users/1' && method === 'GET') {
-      await route.fulfill({ json: users[0] });
+    if (path === '/users' && method === 'POST') {
+      const createdUser = { id: 10, ...(await request.postDataJSON()) };
+      apiUsers.push(createdUser);
+
+      await route.fulfill({ json: createdUser });
 
       return;
     }
 
-    if (path === '/users/1' && method === 'PATCH') {
-      await route.fulfill({ json: { ...users[0], ...(await request.postDataJSON()) } });
+    if (path.startsWith('/users/') && method === 'GET') {
+      const userId = Number(path.replace('/users/', ''));
+      const user = apiUsers.find((item) => item.id === userId);
+
+      await route.fulfill({ status: user ? 200 : 404, json: user ?? { message: 'Not found' } });
+
+      return;
+    }
+
+    if (path.startsWith('/users/') && method === 'PATCH') {
+      const userId = Number(path.replace('/users/', ''));
+      const user = apiUsers.find((item) => item.id === userId);
+
+      await route.fulfill({
+        status: user ? 200 : 404,
+        json: user ? { ...user, ...(await request.postDataJSON()) } : { message: 'Not found' },
+      });
 
       return;
     }
@@ -157,13 +191,37 @@ async function mockApi(page: Page): Promise<void> {
     }
 
     if (path === '/groups' && method === 'GET') {
-      await route.fulfill({ json: groups });
+      await route.fulfill({ json: apiGroups });
 
       return;
     }
 
     if (path === '/groups' && method === 'POST') {
-      await route.fulfill({ json: { id: 42, ...(await request.postDataJSON()) } });
+      const createdGroup = { id: 42, ...(await request.postDataJSON()) };
+      apiGroups.push(createdGroup);
+
+      await route.fulfill({ json: createdGroup });
+
+      return;
+    }
+
+    if (path === '/groups/1' && method === 'PATCH') {
+      const groupIndex = apiGroups.findIndex((group) => group.id === 1);
+      const updatedGroup = { ...apiGroups[groupIndex], ...(await request.postDataJSON()) };
+      apiGroups[groupIndex] = updatedGroup;
+
+      await route.fulfill({ json: updatedGroup });
+
+      return;
+    }
+
+    if (path === '/groups/1' && method === 'DELETE') {
+      apiGroups.splice(
+        apiGroups.findIndex((group) => group.id === 1),
+        1,
+      );
+
+      await route.fulfill({ json: {} });
 
       return;
     }
@@ -188,6 +246,22 @@ test('login opens protected dashboard', async ({ page }) => {
   await login(page);
 
   await expect(page.getByRole('heading', { name: 'Марк Ильин' })).toBeVisible();
+});
+
+test('registers a new user and opens the dashboard', async ({ page }) => {
+  await page.goto('/register');
+  await page.getByLabel('Имя').fill('Новый Ученик');
+  await page.getByLabel('Email').fill('new@student.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('skillmate');
+  await page.getByLabel('Повтор пароля').fill('skillmate');
+  await page.getByLabel('Город').fill('Москва');
+  await page
+    .getByLabel('О себе')
+    .fill('Хочу найти партнёров для обмена навыками и регулярной практики.');
+  await page.getByRole('button', { name: 'Зарегистрироваться' }).click();
+
+  await expect(page.getByRole('heading', { name: /Подбор партнёров/ })).toBeVisible();
+  await expect(page.getByText('Новый Ученик')).toBeVisible();
 });
 
 test('filters partners by skill', async ({ page }) => {
@@ -235,4 +309,77 @@ test('creates a review with rating from partner card', async ({ page }) => {
   await reviewDialog.getByRole('button', { name: 'Сохранить отзыв' }).click();
 
   await expect(page.getByText('Отзыв сохранён. Оценка: 4/5')).toBeVisible();
+});
+
+test('invites a partner to a group from the partner card', async ({ page }) => {
+  await login(page);
+
+  await page
+    .locator('app-partner-card')
+    .filter({ hasText: 'Лера Ким' })
+    .getByRole('button', { name: 'Пригласить в группу' })
+    .click();
+
+  const inviteDialog = page.getByRole('dialog', { name: /Приглашение в группу для Лера Ким/ });
+
+  await expect(inviteDialog).toBeVisible();
+  await inviteDialog.getByLabel('Группа').selectOption({ label: 'Frontend study room' });
+  await inviteDialog.getByRole('button', { name: 'Пригласить' }).click();
+
+  await expect(
+    page.getByText('Пользователь Лера Ким приглашён в группу «Frontend study room»'),
+  ).toBeVisible();
+});
+
+test('deletes a group after irreversible action confirmation', async ({ page }) => {
+  await login(page);
+  await page.getByRole('link', { name: 'Группы' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Frontend study room' })).toBeVisible();
+  await page
+    .locator('.group-card')
+    .filter({ hasText: 'Frontend study room' })
+    .getByRole('button', { name: 'Удалить группу' })
+    .click();
+
+  await expect(
+    page.getByRole('dialog', { name: /Удаление группы Frontend study room/ }),
+  ).toBeVisible();
+  await expect(page.getByText('Это действие нельзя отменить')).toBeVisible();
+  await page.getByRole('button', { name: 'Да, удалить' }).click();
+
+  await expect(page.getByText('Группа «Frontend study room» удалена')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Frontend study room' })).not.toBeVisible();
+});
+
+test('opens a group and removes members and materials', async ({ page }) => {
+  await login(page);
+  await page.getByRole('link', { name: 'Группы' }).click();
+
+  await page
+    .locator('.group-card')
+    .filter({ hasText: 'Frontend study room' })
+    .getByRole('button', { name: 'Открыть группу' })
+    .click();
+
+  const groupDialog = page.getByRole('dialog', { name: /Группа Frontend study room/ });
+
+  await expect(groupDialog).toBeVisible();
+  await expect(groupDialog.getByText('Аня Смирнова')).toBeVisible();
+  await expect(groupDialog.getByText('Марк Ильин')).toBeVisible();
+  await expect(groupDialog.getByText('Angular routing checklist')).toBeVisible();
+
+  await groupDialog
+    .locator('.detail-row')
+    .filter({ hasText: 'Марк Ильин' })
+    .getByRole('button', { name: 'Удалить участника' })
+    .click();
+  await expect(groupDialog.getByText('Марк Ильин')).not.toBeVisible();
+
+  await groupDialog
+    .locator('.detail-row')
+    .filter({ hasText: 'Angular routing checklist' })
+    .getByRole('button', { name: 'Удалить материал' })
+    .click();
+  await expect(groupDialog.getByText('Angular routing checklist')).not.toBeVisible();
 });

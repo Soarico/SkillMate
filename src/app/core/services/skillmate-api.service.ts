@@ -35,6 +35,10 @@ export class SkillmateApiService {
     return this.http.patch<UserProfile>(`${this.baseUrl}/users/${id}`, profile);
   }
 
+  createUser(user: Omit<UserRecord, 'id'>): Observable<UserRecord> {
+    return this.http.post<UserRecord>(`${this.baseUrl}/users`, user);
+  }
+
   getSessionsForUser(userId: number): Observable<LearningSession[]> {
     return this.http.get<LearningSession[]>(`${this.baseUrl}/sessions`, {
       params: new HttpParams().set('hostId', userId),
@@ -69,9 +73,17 @@ export class SkillmateApiService {
     return this.http.post<SkillGroup>(`${this.baseUrl}/groups`, group);
   }
 
+  deleteGroup(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/groups/${id}`);
+  }
+
+  updateGroup(id: number, group: Partial<SkillGroup>): Observable<SkillGroup> {
+    return this.http.patch<SkillGroup>(`${this.baseUrl}/groups/${id}`, group);
+  }
+
   addMaterial(group: SkillGroup, material: StudyMaterial): Observable<SkillGroup> {
     const materials = [...group.materials, material];
 
-    return this.http.patch<SkillGroup>(`${this.baseUrl}/groups/${group.id}`, { materials });
+    return this.updateGroup(Number(group.id), { materials });
   }
 }

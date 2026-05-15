@@ -76,7 +76,29 @@
 }
 
 .partner-card__actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 0.5rem;
+}
+
+.action-button {
+  min-width: 0;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.action-button--exchange {
+  box-shadow: 0 8px 18px rgba(21, 94, 239, 0.22);
+}
+
+.action-button--group {
+  border-color: #b7e4d2;
+  background: #e6f4ef;
+  color: #0f5132;
+}
+
+.action-button--review {
+  border-color: #fedf89;
+  background: #fff4e5;
+  color: #b54708;
 }

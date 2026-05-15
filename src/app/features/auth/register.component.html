@@ -1,0 +1,86 @@
+<section class="login">
+  <div class="login__intro">
+    <p class="eyebrow">Skill exchange platform</p>
+    <h1>Создай профиль и начни обмениваться навыками</h1>
+    <p>
+      После регистрации SkillMate сохранит профиль в mock API, создаст учебную сессию входа и
+      откроет подбор партнёров.
+    </p>
+  </div>
+
+  <form class="login__form" [formGroup]="form" (ngSubmit)="submit()" aria-label="Форма регистрации">
+    <h2>Регистрация</h2>
+
+    @if (error()) {
+      <tui-notification appearance="negative" size="s">{{ error() }}</tui-notification>
+    }
+
+    <label>
+      <span>Имя</span>
+      <input formControlName="name" type="text" autocomplete="name" aria-describedby="name-error" />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <small id="name-error">Минимум 2 символа.</small>
+      }
+    </label>
+
+    <label>
+      <span>Email</span>
+      <input
+        formControlName="email"
+        type="email"
+        autocomplete="email"
+        aria-describedby="email-error"
+      />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <small id="email-error">Введите корректный email.</small>
+      }
+    </label>
+
+    <label>
+      <span>Пароль</span>
+      <input
+        formControlName="password"
+        type="password"
+        autocomplete="new-password"
+        aria-describedby="password-error"
+      />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <small id="password-error">Минимум 6 символов.</small>
+      }
+    </label>
+
+    <label>
+      <span>Повтор пароля</span>
+      <input
+        formControlName="passwordConfirm"
+        type="password"
+        autocomplete="new-password"
+        aria-describedby="password-confirm-error"
+      />
+      @if (form.controls.passwordConfirm.touched && form.controls.passwordConfirm.invalid) {
+        <small id="password-confirm-error"
+          >Пароль должен совпадать и быть не короче 6 символов.</small
+        >
+      }
+    </label>
+
+    <label>
+      <span>Город</span>
+      <input formControlName="city" type="text" autocomplete="address-level2" />
+    </label>
+
+    <label>
+      <span>О себе</span>
+      <textarea formControlName="about" rows="3"></textarea>
+      @if (form.controls.about.touched && form.controls.about.invalid) {
+        <small>Минимум 20 символов.</small>
+      }
+    </label>
+
+    <button tuiButton type="submit" [disabled]="loading()">
+      {{ loading() ? 'Создаём...' : 'Зарегистрироваться' }}
+    </button>
+
+    <p class="login__switch">Уже есть профиль? <a routerLink="/login">Войти</a></p>
+  </form>
+</section>

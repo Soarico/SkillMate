@@ -15,5 +15,6 @@ import { PartnerMatch } from '../../../core/models/skillmate.models';
 export class PartnerCardComponent {
   @Input({ required: true }) partner!: PartnerMatch;
   @Output() readonly propose = new EventEmitter<PartnerMatch>();
+  @Output() readonly inviteToGroup = new EventEmitter<PartnerMatch>();
   @Output() readonly review = new EventEmitter<PartnerMatch>();
 }

@@ -24,12 +24,13 @@ const userRecord: UserRecord = {
 };
 
 describe('AuthService', () => {
-  let api: { findUserByEmail: jest.Mock };
+  let api: { createUser: jest.Mock; findUserByEmail: jest.Mock };
   let service: AuthService;
 
   beforeEach(() => {
     localStorage.clear();
     api = {
+      createUser: jest.fn(),
       findUserByEmail: jest.fn(),
     };
 
@@ -77,5 +78,47 @@ describe('AuthService', () => {
         done();
       },
     });
+  });
+
+  it('registers a user and starts a session', (done) => {
+    api.findUserByEmail.mockReturnValue(of([]));
+    api.createUser.mockReturnValue(of({ ...userRecord, id: 5, email: 'new@student.test' }));
+
+    service
+      .register({
+        name: 'Новый пользователь',
+        email: 'New@Student.Test',
+        password: 'skillmate',
+        city: 'Москва',
+        about: 'Хочу обмениваться навыками и учиться вместе.',
+      })
+      .subscribe((session) => {
+        expect(api.createUser).toHaveBeenCalledWith(
+          expect.objectContaining({ email: 'new@student.test', password: 'skillmate' }),
+        );
+        expect(session.token).toContain('mock-jwt-5');
+        expect(service.isAuthenticated()).toBe(true);
+        done();
+      });
+  });
+
+  it('rejects registration with an existing email', (done) => {
+    api.findUserByEmail.mockReturnValue(of([userRecord]));
+
+    service
+      .register({
+        name: 'Аня',
+        email: 'anya@student.test',
+        password: 'skillmate',
+        city: 'Москва',
+        about: 'Повторная регистрация существующего email.',
+      })
+      .subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe('Пользователь с таким email уже зарегистрирован');
+          expect(api.createUser).not.toHaveBeenCalled();
+          done();
+        },
+      });
   });
 });

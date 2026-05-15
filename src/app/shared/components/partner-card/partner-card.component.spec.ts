@@ -50,4 +50,13 @@ describe('PartnerCardComponent', () => {
 
     expect(emitSpy).toHaveBeenCalledWith(partner);
   });
+
+  it('emits group invite event with selected partner', () => {
+    const component = fixture.componentInstance;
+    const emitSpy = jest.spyOn(component.inviteToGroup, 'emit');
+
+    component.inviteToGroup.emit(partner);
+
+    expect(emitSpy).toHaveBeenCalledWith(partner);
+  });
 });

@@ -44,6 +44,14 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface RegisterCredentials {
+  name: string;
+  email: string;
+  password: string;
+  city: string;
+  about: string;
+}
+
 export type ExchangeOfferStatus = 'pending' | 'accepted' | 'declined';
 
 export interface ExchangeOffer {

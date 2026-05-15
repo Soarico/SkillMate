@@ -10,6 +10,12 @@ export const routes: Routes = [
       import('./features/auth/login.component').then((module) => module.LoginComponent),
   },
   {
+    path: 'register',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/auth/register.component').then((module) => module.RegisterComponent),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     children: [

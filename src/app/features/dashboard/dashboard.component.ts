@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TuiButton, TuiLoader, TuiNotification } from '@taiga-ui/core';
+import { TuiTextfield } from '@taiga-ui/core/components/textfield';
 import { TuiProgress } from '@taiga-ui/kit';
 
-import { LearningSession, PartnerMatch } from '../../core/models/skillmate.models';
+import { LearningSession, PartnerMatch, SkillGroup } from '../../core/models/skillmate.models';
 import { PartnerSort, SkillmateStore } from '../../core/state/skillmate.store';
 import { PartnerCardComponent } from '../../shared/components/partner-card/partner-card.component';
 import { ProgressPercentPipe } from '../../shared/pipes/progress-percent.pipe';
@@ -13,11 +14,13 @@ import { ProgressPercentPipe } from '../../shared/pipes/progress-percent.pipe';
   selector: 'app-dashboard',
   imports: [
     DatePipe,
+    FormsModule,
     ReactiveFormsModule,
     TuiButton,
     TuiLoader,
     TuiNotification,
     TuiProgress,
+    TuiTextfield,
     PartnerCardComponent,
     ProgressPercentPipe,
   ],
@@ -32,24 +35,40 @@ export class DashboardComponent implements OnInit {
   protected readonly actionError = signal<string | null>(null);
   protected readonly selectedPartner = signal<PartnerMatch | null>(null);
   protected readonly selectedReviewPartner = signal<PartnerMatch | null>(null);
+  protected readonly selectedInvitePartner = signal<PartnerMatch | null>(null);
+  protected readonly ratingOptions = [
+    '5 — отлично',
+    '4 — хорошо',
+    '3 — нормально',
+    '2 — есть сложности',
+    '1 — не рекомендую',
+  ] as const;
   protected readonly exchangeForm = this.formBuilder.nonNullable.group({
     topic: ['', [Validators.required, Validators.minLength(3)]],
     startsAt: ['', [Validators.required]],
     durationMinutes: [60, [Validators.required, Validators.min(30)]],
   });
   protected readonly reviewForm = this.formBuilder.nonNullable.group({
-    rating: [5, [Validators.required, Validators.min(1), Validators.max(5)]],
+    rating: ['5 — отлично', [Validators.required]],
     text: ['', [Validators.required, Validators.minLength(10)]],
+  });
+  protected readonly inviteForm = this.formBuilder.nonNullable.group({
+    groupTitle: ['', [Validators.required]],
   });
 
   ngOnInit(): void {
     this.store.loadWorkspace();
   }
 
-  protected setSort(value: string): void {
-    const sort = ['compatibility', 'rating', 'name'].includes(value)
+  protected setCategory(value: string | null): void {
+    this.store.updateCategory(value ?? 'all');
+  }
+
+  protected setSort(value: string | null): void {
+    const sort = ['compatibility', 'rating', 'name'].includes(value ?? '')
       ? (value as PartnerSort)
       : 'compatibility';
+
     this.store.updateSort(sort);
   }
 
@@ -58,6 +77,7 @@ export class DashboardComponent implements OnInit {
     this.actionError.set(null);
     this.selectedPartner.set(partner);
     this.selectedReviewPartner.set(null);
+    this.selectedInvitePartner.set(null);
     this.exchangeForm.reset({
       topic: `Обмен: ${partner.teachSkills.at(0)?.name ?? 'новый навык'}`,
       startsAt: this.defaultSessionDateTime(),
@@ -74,16 +94,70 @@ export class DashboardComponent implements OnInit {
     this.actionMessage.set(null);
     this.actionError.set(null);
     this.selectedPartner.set(null);
+    this.selectedInvitePartner.set(null);
     this.selectedReviewPartner.set(partner);
     this.reviewForm.reset({
-      rating: 5,
+      rating: '5 — отлично',
       text: '',
     });
   }
 
   protected closeReview(): void {
     this.selectedReviewPartner.set(null);
-    this.reviewForm.reset({ rating: 5, text: '' });
+    this.reviewForm.reset({ rating: '5 — отлично', text: '' });
+  }
+
+  protected openInvite(partner: PartnerMatch): void {
+    this.actionMessage.set(null);
+    this.actionError.set(null);
+    this.selectedPartner.set(null);
+    this.selectedReviewPartner.set(null);
+    this.selectedInvitePartner.set(partner);
+    this.inviteForm.reset({ groupTitle: '' });
+  }
+
+  protected closeInvite(): void {
+    this.selectedInvitePartner.set(null);
+    this.inviteForm.reset({ groupTitle: '' });
+  }
+
+  protected availableGroupsForPartner(partner: PartnerMatch): SkillGroup[] {
+    return this.store
+      .groups()
+      .filter(
+        (group) => !group.memberIds.some((memberId) => String(memberId) === String(partner.id)),
+      );
+  }
+
+  protected availableGroupTitlesForPartner(partner: PartnerMatch): string[] {
+    return this.availableGroupsForPartner(partner).map((group) => group.title);
+  }
+
+  protected submitInvite(): void {
+    const partner = this.selectedInvitePartner();
+
+    if (!partner || this.inviteForm.invalid) {
+      this.inviteForm.markAllAsTouched();
+
+      return;
+    }
+
+    const groupTitle = this.inviteForm.getRawValue().groupTitle;
+    const group = this.store.groups().find((item) => item.title === groupTitle);
+
+    if (!group) {
+      this.actionError.set('Группа не найдена');
+
+      return;
+    }
+
+    this.store.addGroupMember(group, partner.id).subscribe({
+      next: () => {
+        this.actionMessage.set(`Пользователь ${partner.name} приглашён в группу «${group.title}»`);
+        this.closeInvite();
+      },
+      error: (error: Error) => this.actionError.set(error.message),
+    });
   }
 
   protected submitReview(): void {
@@ -96,10 +170,11 @@ export class DashboardComponent implements OnInit {
     }
 
     const formValue = this.reviewForm.getRawValue();
+    const rating = this.parseRating(formValue.rating);
 
-    this.store.addReview(partner.id, formValue.rating, formValue.text).subscribe({
+    this.store.addReview(partner.id, rating, formValue.text).subscribe({
       next: () => {
-        this.actionMessage.set(`Отзыв сохранён. Оценка: ${formValue.rating}/5`);
+        this.actionMessage.set(`Отзыв сохранён. Оценка: ${rating}/5`);
         this.closeReview();
       },
       error: (error: Error) => this.actionError.set(error.message),
@@ -149,6 +224,10 @@ export class DashboardComponent implements OnInit {
     const timezoneOffsetMs = nextDay.getTimezoneOffset() * 60_000;
 
     return new Date(nextDay.getTime() - timezoneOffsetMs).toISOString().slice(0, 16);
+  }
+
+  private parseRating(value: string): number {
+    return Number(value.slice(0, 1));
   }
 
   protected removeSession(id: number | undefined): void {

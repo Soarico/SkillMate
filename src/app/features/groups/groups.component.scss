@@ -47,7 +47,7 @@ label {
 }
 
 input,
-select,
+select:not(.taiga-select__native),
 textarea {
   width: 100%;
   padding: 0.8rem;
@@ -55,6 +55,15 @@ textarea {
   border-radius: 0.5rem;
   font: inherit;
   resize: vertical;
+}
+
+tui-textfield {
+  width: 100%;
+}
+
+.taiga-select__native {
+  color: #14213d;
+  font: inherit;
 }
 
 .group-card header {
@@ -93,9 +102,143 @@ textarea {
   font-weight: 700;
 }
 
+.group-card__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(20, 33, 61, 0.34);
+}
+
+.confirm-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.confirm-dialog {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(440px, 100%);
+  gap: 0.8rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(20, 33, 61, 0.08);
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 18px 56px rgba(20, 33, 61, 0.18);
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  p:not(.eyebrow) {
+    color: #667085;
+    line-height: 1.5;
+  }
+}
+
+.group-details {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(760px, 100%);
+  max-height: min(720px, calc(100vh - 2rem));
+  gap: 1rem;
+  overflow: auto;
+  padding: 1.25rem;
+  border: 1px solid rgba(20, 33, 61, 0.08);
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 18px 56px rgba(20, 33, 61, 0.18);
+}
+
+.group-details__header {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    margin: 0.2rem 0;
+  }
+
+  p:not(.eyebrow) {
+    color: #667085;
+    line-height: 1.5;
+  }
+}
+
+.detail-section {
+  display: grid;
+  gap: 0.75rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+.detail-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.detail-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border: 1px solid #eaecf0;
+  border-radius: 0.5rem;
+
+  span,
+  a {
+    color: #344054;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+}
+
+.empty-row {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 @media (max-width: 860px) {
   .forms-row,
   .groups-grid {
     grid-template-columns: 1fr;
+  }
+
+  .group-details__header,
+  .detail-row {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

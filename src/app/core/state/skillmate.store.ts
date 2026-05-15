@@ -221,6 +221,75 @@ export const SkillmateStore = signalStore(
         }),
       );
     },
+    removeGroup(groupId: number): Observable<void> {
+      patchState(store, { loading: true, error: null });
+
+      return api.deleteGroup(groupId).pipe(
+        tap({
+          next: () =>
+            patchState(store, {
+              groups: store.groups().filter((group) => group.id !== groupId),
+              loading: false,
+            }),
+          error: (error: Error) => patchState(store, { loading: false, error: error.message }),
+        }),
+      );
+    },
+    removeGroupMember(group: SkillGroup, memberId: number): Observable<SkillGroup> {
+      const memberIds = group.memberIds.filter((id) => String(id) !== String(memberId));
+
+      patchState(store, { loading: true, error: null });
+
+      return api.updateGroup(Number(group.id), { memberIds }).pipe(
+        tap({
+          next: (updatedGroup) =>
+            patchState(store, {
+              groups: store
+                .groups()
+                .map((item) => (item.id === updatedGroup.id ? updatedGroup : item)),
+              loading: false,
+            }),
+          error: (error: Error) => patchState(store, { loading: false, error: error.message }),
+        }),
+      );
+    },
+    addGroupMember(group: SkillGroup, memberId: number): Observable<SkillGroup> {
+      const alreadyInGroup = group.memberIds.some((id) => String(id) === String(memberId));
+      const memberIds = alreadyInGroup ? group.memberIds : [...group.memberIds, memberId];
+
+      patchState(store, { loading: true, error: null });
+
+      return api.updateGroup(Number(group.id), { memberIds }).pipe(
+        tap({
+          next: (updatedGroup) =>
+            patchState(store, {
+              groups: store
+                .groups()
+                .map((item) => (item.id === updatedGroup.id ? updatedGroup : item)),
+              loading: false,
+            }),
+          error: (error: Error) => patchState(store, { loading: false, error: error.message }),
+        }),
+      );
+    },
+    removeGroupMaterial(group: SkillGroup, materialIndex: number): Observable<SkillGroup> {
+      const materials = group.materials.filter((_material, index) => index !== materialIndex);
+
+      patchState(store, { loading: true, error: null });
+
+      return api.updateGroup(Number(group.id), { materials }).pipe(
+        tap({
+          next: (updatedGroup) =>
+            patchState(store, {
+              groups: store
+                .groups()
+                .map((item) => (item.id === updatedGroup.id ? updatedGroup : item)),
+              loading: false,
+            }),
+          error: (error: Error) => patchState(store, { loading: false, error: error.message }),
+        }),
+      );
+    },
     addMaterial(
       group: SkillGroup,
       materialTitle: string,

@@ -4,8 +4,14 @@ SkillMate - школьный семестровый проект на Angular 21
 
 ## Демо-доступ
 
-- Email: `anya@student.test`
-- Пароль: `skillmate`
+Все mock-пользователи могут входить в приложение:
+
+| Пользователь | Email                | Пароль      |
+| ------------ | -------------------- | ----------- |
+| Аня Смирнова | `anya@student.test`  | `skillmate` |
+| Марк Ильин   | `mark@student.test`  | `skillmate` |
+| Лера Ким     | `lera@student.test`  | `skillmate` |
+| Даня Орлов   | `danya@student.test` | `skillmate` |
 
 ## Стек
 
@@ -53,6 +59,7 @@ tests/e2e         Playwright scenarios
 ## Реализованные сценарии
 
 - Login/logout с хранением mock JWT в `localStorage`
+- Регистрация нового пользователя через mock API
 - Protected routes через `authGuard`
 - Token и error interceptors для HTTP
 - Профиль с навыками, интересами и прогрессом
@@ -60,7 +67,7 @@ tests/e2e         Playwright scenarios
 - Расчёт совместимости и среднего прогресса
 - Предложение обмена навыками
 - Планирование и удаление учебных сессий
-- Создание групп и добавление материалов
+- Создание групп, приглашение участников и добавление материалов
 - Создание отзывов о партнёрах
 
 ## Деплой

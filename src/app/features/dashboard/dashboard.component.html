@@ -1,14 +1,7 @@
 <tui-loader [showLoader]="store.loading()" size="l">
   <section class="dashboard" aria-label="Панель подбора партнёров">
     <div class="dashboard__summary">
-      <div>
-        <p class="eyebrow">Рабочий прототип</p>
-        <h1>Подбор партнёров по обмену навыками</h1>
-      </div>
-      <div class="dashboard__score" aria-label="Средний прогресс обучения">
-        <strong>{{ store.averageProgress() }}%</strong>
-        <span>средний прогресс</span>
-      </div>
+      <h1>Подбор партнёров по обмену навыками</h1>
     </div>
 
     @if (store.error()) {
@@ -55,25 +48,37 @@
 
       <label>
         <span>Категория</span>
-        <select
-          #category
-          [value]="store.category()"
-          (change)="store.updateCategory(category.value)"
-        >
-          <option value="all">Все категории</option>
-          @for (item of store.categories(); track item) {
-            <option [value]="item">{{ item }}</option>
-          }
-        </select>
+        <tui-textfield tuiTextfieldSize="m">
+          <select
+            class="taiga-select__native"
+            aria-label="Категория"
+            [ngModel]="store.category()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="setCategory($event)"
+          >
+            <option value="all">Все категории</option>
+            @for (item of store.categories(); track item) {
+              <option [value]="item">{{ item }}</option>
+            }
+          </select>
+        </tui-textfield>
       </label>
 
       <label>
         <span>Сортировка</span>
-        <select #sort [value]="store.sortBy()" (change)="setSort(sort.value)">
-          <option value="compatibility">Совместимость</option>
-          <option value="rating">Рейтинг</option>
-          <option value="name">Имя</option>
-        </select>
+        <tui-textfield tuiTextfieldSize="m">
+          <select
+            class="taiga-select__native"
+            aria-label="Сортировка"
+            [ngModel]="store.sortBy()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="setSort($event)"
+          >
+            <option value="compatibility">Совместимость</option>
+            <option value="rating">Рейтинг</option>
+            <option value="name">Имя</option>
+          </select>
+        </tui-textfield>
       </label>
     </section>
 
@@ -83,6 +88,7 @@
           <app-partner-card
             [partner]="partner"
             (propose)="openExchange($event)"
+            (inviteToGroup)="openInvite($event)"
             (review)="openReview($event)"
           />
         } @empty {
@@ -181,6 +187,75 @@
       </div>
     }
 
+    @if (selectedInvitePartner(); as partner) {
+      <div class="exchange-overlay" role="presentation">
+        <button
+          class="exchange-backdrop"
+          type="button"
+          aria-label="Закрыть окно приглашения"
+          (click)="closeInvite()"
+        ></button>
+        <form
+          class="exchange-popover"
+          [formGroup]="inviteForm"
+          (ngSubmit)="submitInvite()"
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-label]="'Приглашение в группу для ' + partner.name"
+        >
+          <header class="exchange-popover__header">
+            <div>
+              <p class="eyebrow">Приглашение в группу</p>
+              <h2>{{ partner.name }}</h2>
+            </div>
+            <button
+              tuiButton
+              size="s"
+              appearance="secondary"
+              type="button"
+              (click)="closeInvite()"
+              aria-label="Закрыть окно приглашения"
+            >
+              Закрыть
+            </button>
+          </header>
+
+          @if (availableGroupsForPartner(partner).length) {
+            <label>
+              <span>Группа</span>
+              <tui-textfield tuiTextfieldSize="m">
+                <select
+                  class="taiga-select__native"
+                  aria-label="Группа"
+                  formControlName="groupTitle"
+                  placeholder="Выбрать группу"
+                >
+                  <option value="" disabled>Выбрать группу</option>
+                  @for (groupTitle of availableGroupTitlesForPartner(partner); track groupTitle) {
+                    <option [value]="groupTitle">{{ groupTitle }}</option>
+                  }
+                </select>
+              </tui-textfield>
+            </label>
+
+            <footer class="exchange-popover__actions">
+              <button tuiButton type="submit">Пригласить</button>
+              <button tuiButton appearance="secondary" type="button" (click)="closeInvite()">
+                Отмена
+              </button>
+            </footer>
+          } @else {
+            <p class="exchange-popover__summary">Этот пользователь уже состоит во всех группах.</p>
+            <footer class="exchange-popover__actions">
+              <button tuiButton appearance="secondary" type="button" (click)="closeInvite()">
+                Закрыть
+              </button>
+            </footer>
+          }
+        </form>
+      </div>
+    }
+
     @if (selectedReviewPartner(); as partner) {
       <div class="exchange-overlay" role="presentation">
         <button
@@ -216,13 +291,13 @@
 
           <label>
             <span>Оценка</span>
-            <select formControlName="rating">
-              <option [ngValue]="5">5 — отлично</option>
-              <option [ngValue]="4">4 — хорошо</option>
-              <option [ngValue]="3">3 — нормально</option>
-              <option [ngValue]="2">2 — есть сложности</option>
-              <option [ngValue]="1">1 — не рекомендую</option>
-            </select>
+            <tui-textfield tuiTextfieldSize="m">
+              <select class="taiga-select__native" aria-label="Оценка" formControlName="rating">
+                @for (rating of ratingOptions; track rating) {
+                  <option [value]="rating">{{ rating }}</option>
+                }
+              </select>
+            </tui-textfield>
           </label>
 
           <label>

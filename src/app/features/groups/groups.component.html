@@ -34,12 +34,19 @@
       <h2>Материал в группу</h2>
       <label>
         <span>Группа</span>
-        <select formControlName="groupId">
-          <option [ngValue]="0">Выбрать группу</option>
-          @for (group of store.groups(); track group.id) {
-            <option [ngValue]="group.id">{{ group.title }}</option>
-          }
-        </select>
+        <tui-textfield tuiTextfieldSize="m">
+          <select
+            class="taiga-select__native"
+            aria-label="Группа"
+            formControlName="groupTitle"
+            placeholder="Выбрать группу"
+          >
+            <option value="" disabled>Выбрать группу</option>
+            @for (groupTitle of groupTitles(); track groupTitle) {
+              <option [value]="groupTitle">{{ groupTitle }}</option>
+            }
+          </select>
+        </tui-textfield>
       </label>
       <label>
         <span>Название</span>
@@ -76,7 +83,144 @@
             <span>Материалов пока нет.</span>
           }
         </div>
+
+        <footer class="group-card__actions">
+          <button
+            tuiButton
+            appearance="secondary"
+            size="s"
+            type="button"
+            (click)="openGroup(group)"
+          >
+            Открыть группу
+          </button>
+          <button
+            tuiButton
+            appearance="secondary"
+            size="s"
+            type="button"
+            (click)="requestDeleteGroup(group)"
+          >
+            Удалить группу
+          </button>
+        </footer>
       </article>
     }
   </section>
+
+  @if (selectedGroup(); as group) {
+    <div class="confirm-overlay" role="presentation">
+      <button
+        class="confirm-backdrop"
+        type="button"
+        aria-label="Закрыть группу"
+        (click)="closeGroup()"
+      ></button>
+
+      <section
+        class="group-details"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="'Группа ' + group.title"
+      >
+        <header class="group-details__header">
+          <div>
+            <p class="eyebrow">{{ group.interest }}</p>
+            <h2>{{ group.title }}</h2>
+            <p>{{ group.description }}</p>
+          </div>
+          <button
+            tuiButton
+            appearance="secondary"
+            size="s"
+            type="button"
+            (click)="closeGroup()"
+            aria-label="Закрыть группу"
+          >
+            Закрыть
+          </button>
+        </header>
+
+        <section class="detail-section" aria-label="Участники группы">
+          <h3>Участники</h3>
+          <div class="detail-list">
+            @for (memberId of group.memberIds; track memberId) {
+              <article class="detail-row">
+                <span>{{ memberName(memberId) }}</span>
+                <button
+                  tuiButton
+                  appearance="secondary"
+                  size="s"
+                  type="button"
+                  (click)="removeMember(group, memberId)"
+                >
+                  Удалить участника
+                </button>
+              </article>
+            } @empty {
+              <p class="empty-row">Участников пока нет.</p>
+            }
+          </div>
+        </section>
+
+        <section class="detail-section" aria-label="Материалы группы">
+          <h3>Материалы</h3>
+          <div class="detail-list">
+            @for (material of group.materials; track material.title; let index = $index) {
+              <article class="detail-row">
+                <a [href]="material.url" target="_blank" rel="noreferrer">{{ material.title }}</a>
+                <button
+                  tuiButton
+                  appearance="secondary"
+                  size="s"
+                  type="button"
+                  (click)="removeMaterial(group, index, material.title)"
+                >
+                  Удалить материал
+                </button>
+              </article>
+            } @empty {
+              <p class="empty-row">Материалов пока нет.</p>
+            }
+          </div>
+        </section>
+      </section>
+    </div>
+  }
+
+  @if (groupToDelete(); as group) {
+    <div class="confirm-overlay" role="presentation">
+      <button
+        class="confirm-backdrop"
+        type="button"
+        aria-label="Отменить удаление группы"
+        (click)="cancelDeleteGroup()"
+      ></button>
+
+      <section
+        class="confirm-dialog"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="'Удаление группы ' + group.title"
+      >
+        <p class="eyebrow">Невозвратное действие</p>
+        <h2>Удалить группу «{{ group.title }}»?</h2>
+        <p>Это действие нельзя отменить. Группа исчезнет из списка вместе с материалами в ней.</p>
+
+        <footer class="confirm-dialog__actions">
+          <button
+            tuiButton
+            appearance="primary-destructive"
+            type="button"
+            (click)="confirmDeleteGroup()"
+          >
+            Да, удалить
+          </button>
+          <button tuiButton appearance="secondary" type="button" (click)="cancelDeleteGroup()">
+            Отмена
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
 </section>

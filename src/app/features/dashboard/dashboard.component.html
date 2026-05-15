@@ -82,7 +82,7 @@
         @for (partner of store.filteredPartners(); track partner.id) {
           <app-partner-card
             [partner]="partner"
-            (propose)="propose($event)"
+            (propose)="openExchange($event)"
             (review)="addReview($event)"
           />
         } @empty {
@@ -90,38 +90,7 @@
         }
       </div>
 
-      <aside class="side-panel" aria-label="Планирование обучения">
-        <form class="session-form" [formGroup]="sessionForm" (ngSubmit)="scheduleSession()">
-          <h2>Запланировать сессию</h2>
-
-          <label>
-            <span>Партнёр</span>
-            <select formControlName="partnerId">
-              <option [ngValue]="0">Выбрать партнёра</option>
-              @for (partner of store.filteredPartners(); track partner.id) {
-                <option [ngValue]="partner.id">{{ partner.name }}</option>
-              }
-            </select>
-          </label>
-
-          <label>
-            <span>Тема</span>
-            <input formControlName="topic" placeholder="Например, основы Figma" />
-          </label>
-
-          <label>
-            <span>Дата и время</span>
-            <input formControlName="startsAt" type="datetime-local" />
-          </label>
-
-          <label>
-            <span>Длительность, минут</span>
-            <input formControlName="durationMinutes" type="number" min="30" step="15" />
-          </label>
-
-          <button tuiButton type="submit">Добавить</button>
-        </form>
-
+      <aside class="side-panel" aria-label="Ближайшие сессии">
         <div class="sessions">
           <h2>Ближайшие сессии</h2>
           @for (session of store.upcomingSessions(); track session.id) {
@@ -146,5 +115,67 @@
         </div>
       </aside>
     </section>
+
+    @if (selectedPartner(); as partner) {
+      <div class="exchange-overlay" role="presentation">
+        <button
+          class="exchange-backdrop"
+          type="button"
+          aria-label="Закрыть окно обмена"
+          (click)="closeExchange()"
+        ></button>
+        <form
+          class="exchange-popover"
+          [formGroup]="exchangeForm"
+          (ngSubmit)="submitExchange()"
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-label]="'Предложение обмена для ' + partner.name"
+        >
+          <header class="exchange-popover__header">
+            <div>
+              <p class="eyebrow">Предложение обмена</p>
+              <h2>{{ partner.name }}</h2>
+            </div>
+            <button
+              tuiButton
+              size="s"
+              appearance="secondary"
+              type="button"
+              (click)="closeExchange()"
+              aria-label="Закрыть окно обмена"
+            >
+              Закрыть
+            </button>
+          </header>
+
+          <p class="exchange-popover__summary">
+            Выбери тему, удобное время и длительность первой учебной сессии.
+          </p>
+
+          <label>
+            <span>Тема</span>
+            <input formControlName="topic" placeholder="Например, основы Figma" />
+          </label>
+
+          <label>
+            <span>Дата и время</span>
+            <input formControlName="startsAt" type="datetime-local" />
+          </label>
+
+          <label>
+            <span>Длительность, минут</span>
+            <input formControlName="durationMinutes" type="number" min="30" step="15" />
+          </label>
+
+          <footer class="exchange-popover__actions">
+            <button tuiButton type="submit">Отправить предложение</button>
+            <button tuiButton appearance="secondary" type="button" (click)="closeExchange()">
+              Отмена
+            </button>
+          </footer>
+        </form>
+      </div>
+    }
   </section>
 </tui-loader>

@@ -14,15 +14,15 @@ flowchart LR
 
 ## Экран 2: Dashboard
 
-Главный экран после входа: прогресс, поиск, фильтры, список партнёров и форма планирования сессии.
+Главный экран после входа: прогресс, поиск, фильтры, список партнёров и окно предложения обмена из карточки партнёра.
 
 ```mermaid
 flowchart TB
   A["Progress stats"] --> B["Search, category, sorting"]
   B --> C["Partner cards with compatibility"]
-  B --> D["Session planner"]
-  C --> E["Offer exchange"]
-  C --> F["Create review"]
+  C --> D["Exchange popover: topic, time, duration"]
+  C --> E["Create review"]
+  D --> F["Offer and planned session"]
 ```
 
 ## Экран 3: Profile

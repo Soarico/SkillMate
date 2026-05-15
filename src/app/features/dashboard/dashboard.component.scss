@@ -52,6 +52,7 @@
 .stat,
 .toolbar,
 .side-panel,
+.exchange-popover,
 .empty {
   border: 1px solid rgba(20, 33, 61, 0.08);
   border-radius: 0.5rem;
@@ -120,7 +121,6 @@ select {
   padding: 1rem;
 }
 
-.session-form,
 .sessions {
   display: grid;
   gap: 0.85rem;
@@ -159,6 +159,57 @@ select {
 .empty--compact {
   margin: 0;
   box-shadow: none;
+}
+
+.exchange-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(20, 33, 61, 0.34);
+}
+
+.exchange-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.exchange-popover {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(440px, 100%);
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.exchange-popover__header {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+
+  h2 {
+    margin: 0.2rem 0 0;
+    font-size: 1.35rem;
+  }
+}
+
+.exchange-popover__summary {
+  margin: 0;
+  color: #667085;
+  line-height: 1.5;
+}
+
+.exchange-popover__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 @media (max-width: 1080px) {

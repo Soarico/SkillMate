@@ -30,8 +30,8 @@ export class DashboardComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   protected readonly actionMessage = signal<string | null>(null);
   protected readonly actionError = signal<string | null>(null);
-  protected readonly sessionForm = this.formBuilder.nonNullable.group({
-    partnerId: [0, [Validators.required, Validators.min(1)]],
+  protected readonly selectedPartner = signal<PartnerMatch | null>(null);
+  protected readonly exchangeForm = this.formBuilder.nonNullable.group({
     topic: ['', [Validators.required, Validators.minLength(3)]],
     startsAt: ['', [Validators.required]],
     durationMinutes: [60, [Validators.required, Validators.min(30)]],
@@ -48,14 +48,20 @@ export class DashboardComponent implements OnInit {
     this.store.updateSort(sort);
   }
 
-  protected propose(partner: PartnerMatch): void {
+  protected openExchange(partner: PartnerMatch): void {
     this.actionMessage.set(null);
     this.actionError.set(null);
-
-    this.store.proposeExchange(partner).subscribe({
-      next: () => this.actionMessage.set(`Предложение обмена отправлено: ${partner.name}`),
-      error: (error: Error) => this.actionError.set(error.message),
+    this.selectedPartner.set(partner);
+    this.exchangeForm.reset({
+      topic: `Обмен: ${partner.teachSkills.at(0)?.name ?? 'новый навык'}`,
+      startsAt: '',
+      durationMinutes: 60,
     });
+  }
+
+  protected closeExchange(): void {
+    this.selectedPartner.set(null);
+    this.exchangeForm.reset({ topic: '', startsAt: '', durationMinutes: 60 });
   }
 
   protected addReview(partner: PartnerMatch): void {
@@ -65,19 +71,20 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  protected scheduleSession(): void {
+  protected submitExchange(): void {
     const currentProfile = this.store.currentProfile();
+    const partner = this.selectedPartner();
 
-    if (!currentProfile || this.sessionForm.invalid) {
-      this.sessionForm.markAllAsTouched();
+    if (!currentProfile || !partner || this.exchangeForm.invalid) {
+      this.exchangeForm.markAllAsTouched();
 
       return;
     }
 
-    const formValue = this.sessionForm.getRawValue();
+    const formValue = this.exchangeForm.getRawValue();
     const session: LearningSession = {
       hostId: currentProfile.id,
-      partnerId: formValue.partnerId,
+      partnerId: partner.id,
       topic: formValue.topic,
       startsAt: new Date(formValue.startsAt).toISOString(),
       durationMinutes: formValue.durationMinutes,
@@ -85,10 +92,15 @@ export class DashboardComponent implements OnInit {
       notes: 'Сессия создана через SkillMate',
     };
 
-    this.store.scheduleSession(session).subscribe({
+    this.store.proposeExchange(partner).subscribe({
       next: () => {
-        this.actionMessage.set('Сессия добавлена в расписание');
-        this.sessionForm.reset({ partnerId: 0, topic: '', startsAt: '', durationMinutes: 60 });
+        this.store.scheduleSession(session).subscribe({
+          next: () => {
+            this.actionMessage.set(`Предложение обмена отправлено: ${partner.name}`);
+            this.closeExchange();
+          },
+          error: (error: Error) => this.actionError.set(error.message),
+        });
       },
       error: (error: Error) => this.actionError.set(error.message),
     });

@@ -199,14 +199,20 @@ test('filters partners by skill', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Лера Ким' })).not.toBeVisible();
 });
 
-test('creates a learning session through the form', async ({ page }) => {
+test('creates a learning session through the exchange popover', async ({ page }) => {
   await login(page);
 
-  await page.locator('select[formcontrolname="partnerId"]').selectOption({ label: 'Марк Ильин' });
+  await page
+    .locator('app-partner-card')
+    .filter({ hasText: 'Марк Ильин' })
+    .getByRole('button', { name: 'Предложить обмен' })
+    .click();
+
+  await expect(page.getByRole('dialog', { name: /Предложение обмена/ })).toBeVisible();
   await page.getByLabel('Тема').fill('Figma basics');
   await page.getByLabel('Дата и время').fill('2026-05-20T14:00');
   await page.getByLabel('Длительность, минут').fill('45');
-  await page.getByRole('button', { name: 'Добавить' }).click();
+  await page.getByRole('button', { name: 'Отправить предложение' }).click();
 
-  await expect(page.getByText('Сессия добавлена в расписание')).toBeVisible();
+  await expect(page.getByText('Предложение обмена отправлено: Марк Ильин')).toBeVisible();
 });

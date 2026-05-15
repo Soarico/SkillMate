@@ -215,3 +215,24 @@ test('creates a learning session through the exchange popover', async ({ page })
   await expect(page.getByText('Обмен: Figma')).toBeVisible();
   await expect(page.getByText('Ожидает подтверждения')).toBeVisible();
 });
+
+test('creates a review with rating from partner card', async ({ page }) => {
+  await login(page);
+
+  await page
+    .locator('app-partner-card')
+    .filter({ hasText: 'Марк Ильин' })
+    .getByRole('button', { name: 'Оставить отзыв' })
+    .click();
+
+  const reviewDialog = page.getByRole('dialog', { name: /Отзыв для Марк Ильин/ });
+
+  await expect(reviewDialog).toBeVisible();
+  await reviewDialog.getByLabel('Оценка').selectOption({ label: '4 — хорошо' });
+  await reviewDialog
+    .getByRole('textbox', { name: 'Отзыв' })
+    .fill('Помог разобраться с Figma и дал понятную обратную связь.');
+  await reviewDialog.getByRole('button', { name: 'Сохранить отзыв' }).click();
+
+  await expect(page.getByText('Отзыв сохранён. Оценка: 4/5')).toBeVisible();
+});

@@ -31,10 +31,15 @@ export class DashboardComponent implements OnInit {
   protected readonly actionMessage = signal<string | null>(null);
   protected readonly actionError = signal<string | null>(null);
   protected readonly selectedPartner = signal<PartnerMatch | null>(null);
+  protected readonly selectedReviewPartner = signal<PartnerMatch | null>(null);
   protected readonly exchangeForm = this.formBuilder.nonNullable.group({
     topic: ['', [Validators.required, Validators.minLength(3)]],
     startsAt: ['', [Validators.required]],
     durationMinutes: [60, [Validators.required, Validators.min(30)]],
+  });
+  protected readonly reviewForm = this.formBuilder.nonNullable.group({
+    rating: [5, [Validators.required, Validators.min(1), Validators.max(5)]],
+    text: ['', [Validators.required, Validators.minLength(10)]],
   });
 
   ngOnInit(): void {
@@ -52,6 +57,7 @@ export class DashboardComponent implements OnInit {
     this.actionMessage.set(null);
     this.actionError.set(null);
     this.selectedPartner.set(partner);
+    this.selectedReviewPartner.set(null);
     this.exchangeForm.reset({
       topic: `Обмен: ${partner.teachSkills.at(0)?.name ?? 'новый навык'}`,
       startsAt: this.defaultSessionDateTime(),
@@ -64,9 +70,38 @@ export class DashboardComponent implements OnInit {
     this.exchangeForm.reset({ topic: '', startsAt: '', durationMinutes: 60 });
   }
 
-  protected addReview(partner: PartnerMatch): void {
-    this.store.addReview(partner.id, 5, 'Отличный партнёр для обмена навыками').subscribe({
-      next: () => this.actionMessage.set(`Отзыв о ${partner.name} сохранён`),
+  protected openReview(partner: PartnerMatch): void {
+    this.actionMessage.set(null);
+    this.actionError.set(null);
+    this.selectedPartner.set(null);
+    this.selectedReviewPartner.set(partner);
+    this.reviewForm.reset({
+      rating: 5,
+      text: '',
+    });
+  }
+
+  protected closeReview(): void {
+    this.selectedReviewPartner.set(null);
+    this.reviewForm.reset({ rating: 5, text: '' });
+  }
+
+  protected submitReview(): void {
+    const partner = this.selectedReviewPartner();
+
+    if (!partner || this.reviewForm.invalid) {
+      this.reviewForm.markAllAsTouched();
+
+      return;
+    }
+
+    const formValue = this.reviewForm.getRawValue();
+
+    this.store.addReview(partner.id, formValue.rating, formValue.text).subscribe({
+      next: () => {
+        this.actionMessage.set(`Отзыв сохранён. Оценка: ${formValue.rating}/5`);
+        this.closeReview();
+      },
       error: (error: Error) => this.actionError.set(error.message),
     });
   }

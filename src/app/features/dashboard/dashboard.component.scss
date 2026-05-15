@@ -91,7 +91,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   min-height: 2.7rem;
   width: 100%;
   padding: 0 0.8rem;
@@ -100,6 +101,16 @@ select {
   background: #fff;
   color: #14213d;
   font: inherit;
+}
+
+textarea {
+  padding: 0.75rem 0.8rem;
+  resize: vertical;
+}
+
+small {
+  color: #b42318;
+  font-weight: 700;
 }
 
 .content-grid {

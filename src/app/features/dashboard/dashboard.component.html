@@ -83,7 +83,7 @@
           <app-partner-card
             [partner]="partner"
             (propose)="openExchange($event)"
-            (review)="addReview($event)"
+            (review)="openReview($event)"
           />
         } @empty {
           <div class="empty">Партнёры не найдены. Попробуй другой навык или категорию.</div>
@@ -174,6 +174,72 @@
           <footer class="exchange-popover__actions">
             <button tuiButton type="submit">Отправить предложение</button>
             <button tuiButton appearance="secondary" type="button" (click)="closeExchange()">
+              Отмена
+            </button>
+          </footer>
+        </form>
+      </div>
+    }
+
+    @if (selectedReviewPartner(); as partner) {
+      <div class="exchange-overlay" role="presentation">
+        <button
+          class="exchange-backdrop"
+          type="button"
+          aria-label="Закрыть окно отзыва"
+          (click)="closeReview()"
+        ></button>
+        <form
+          class="exchange-popover"
+          [formGroup]="reviewForm"
+          (ngSubmit)="submitReview()"
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-label]="'Отзыв для ' + partner.name"
+        >
+          <header class="exchange-popover__header">
+            <div>
+              <p class="eyebrow">Отзыв о партнёре</p>
+              <h2>{{ partner.name }}</h2>
+            </div>
+            <button
+              tuiButton
+              size="s"
+              appearance="secondary"
+              type="button"
+              (click)="closeReview()"
+              aria-label="Закрыть окно отзыва"
+            >
+              Закрыть
+            </button>
+          </header>
+
+          <label>
+            <span>Оценка</span>
+            <select formControlName="rating">
+              <option [ngValue]="5">5 — отлично</option>
+              <option [ngValue]="4">4 — хорошо</option>
+              <option [ngValue]="3">3 — нормально</option>
+              <option [ngValue]="2">2 — есть сложности</option>
+              <option [ngValue]="1">1 — не рекомендую</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Отзыв</span>
+            <textarea
+              formControlName="text"
+              rows="4"
+              placeholder="Что понравилось, как прошла учебная сессия?"
+            ></textarea>
+            @if (reviewForm.controls.text.touched && reviewForm.controls.text.invalid) {
+              <small>Напиши отзыв минимум на 10 символов.</small>
+            }
+          </label>
+
+          <footer class="exchange-popover__actions">
+            <button tuiButton type="submit">Сохранить отзыв</button>
+            <button tuiButton appearance="secondary" type="button" (click)="closeReview()">
               Отмена
             </button>
           </footer>

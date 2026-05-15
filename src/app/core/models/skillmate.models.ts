@@ -57,7 +57,7 @@ export interface ExchangeOffer {
   createdAt: string;
 }
 
-export type LearningSessionStatus = 'planned' | 'done' | 'cancelled';
+export type LearningSessionStatus = 'pending' | 'planned' | 'done' | 'cancelled';
 
 export interface LearningSession {
   id?: number;

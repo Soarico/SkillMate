@@ -108,7 +108,7 @@ export const SkillmateStore = signalStore(
     upcomingSessions: computed(() =>
       store
         .sessions()
-        .filter((session) => session.status === 'planned')
+        .filter((session) => session.status === 'pending' || session.status === 'planned')
         .sort((first, second) => first.startsAt.localeCompare(second.startsAt)),
     ),
   })),

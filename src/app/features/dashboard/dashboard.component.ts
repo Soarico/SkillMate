@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit {
     this.selectedPartner.set(partner);
     this.exchangeForm.reset({
       topic: `Обмен: ${partner.teachSkills.at(0)?.name ?? 'новый навык'}`,
-      startsAt: '',
+      startsAt: this.defaultSessionDateTime(),
       durationMinutes: 60,
     });
   }
@@ -88,15 +88,15 @@ export class DashboardComponent implements OnInit {
       topic: formValue.topic,
       startsAt: new Date(formValue.startsAt).toISOString(),
       durationMinutes: formValue.durationMinutes,
-      status: 'planned',
-      notes: 'Сессия создана через SkillMate',
+      status: 'pending',
+      notes: 'Ожидает подтверждения партнёром',
     };
 
     this.store.proposeExchange(partner).subscribe({
       next: () => {
         this.store.scheduleSession(session).subscribe({
           next: () => {
-            this.actionMessage.set(`Предложение обмена отправлено: ${partner.name}`);
+            this.actionMessage.set('Предложение отправлено');
             this.closeExchange();
           },
           error: (error: Error) => this.actionError.set(error.message),
@@ -104,6 +104,16 @@ export class DashboardComponent implements OnInit {
       },
       error: (error: Error) => this.actionError.set(error.message),
     });
+  }
+
+  private defaultSessionDateTime(): string {
+    const nextDay = new Date();
+    nextDay.setDate(nextDay.getDate() + 1);
+    nextDay.setHours(18, 0, 0, 0);
+
+    const timezoneOffsetMs = nextDay.getTimezoneOffset() * 60_000;
+
+    return new Date(nextDay.getTime() - timezoneOffsetMs).toISOString().slice(0, 16);
   }
 
   protected removeSession(id: number | undefined): void {

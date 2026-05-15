@@ -209,10 +209,9 @@ test('creates a learning session through the exchange popover', async ({ page })
     .click();
 
   await expect(page.getByRole('dialog', { name: /Предложение обмена/ })).toBeVisible();
-  await page.getByLabel('Тема').fill('Figma basics');
-  await page.getByLabel('Дата и время').fill('2026-05-20T14:00');
-  await page.getByLabel('Длительность, минут').fill('45');
   await page.getByRole('button', { name: 'Отправить предложение' }).click();
 
-  await expect(page.getByText('Предложение обмена отправлено: Марк Ильин')).toBeVisible();
+  await expect(page.getByText('Предложение отправлено')).toBeVisible();
+  await expect(page.getByText('Обмен: Figma')).toBeVisible();
+  await expect(page.getByText('Ожидает подтверждения')).toBeVisible();
 });

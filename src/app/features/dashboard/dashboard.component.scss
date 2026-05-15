@@ -151,6 +151,16 @@ select {
   }
 }
 
+.session__status {
+  width: fit-content;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.5rem;
+  background: #fff4e5;
+  color: #b54708;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .empty {
   padding: 1rem;
   color: #667085;

@@ -98,6 +98,9 @@
               <div>
                 <strong>{{ session.topic }}</strong>
                 <span>{{ session.startsAt | date: 'dd.MM.yyyy HH:mm' }}</span>
+                @if (session.status === 'pending') {
+                  <span class="session__status">Ожидает подтверждения</span>
+                }
               </div>
               <button
                 tuiButton

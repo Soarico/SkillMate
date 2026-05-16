@@ -72,12 +72,9 @@ tests/e2e         Playwright scenarios
 
 ## Деплой
 
-Подготовлены два варианта:
+Deploy URL: https://soarico.github.io/SkillMate/
 
-- GitLab Pages: `.gitlab-ci.yml` публикует `dist/skillmate/browser` из ветки `main`
-- Vercel: `vercel.json` использует `npm run build` и SPA rewrite
-
-Публичный URL нужно добавить после привязки репозитория к GitLab Pages или Vercel.
+GitHub Pages публикует production-сборку из ветки `gh-pages`.
 
 ## Документация
 
